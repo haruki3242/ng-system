@@ -18,9 +18,9 @@ function processAllAttachmentsAndDelete() {
           var newFileName = timestamp + '_' + fileName;
           
           // ここでダウンロードしたファイルを処理する（仕様書みてや）（WebDAVにアップロード）
-          var webDAVUrl = 'ここは仕様書にあるで' + newFileName; // WebDAVサーバーのアップロードURLを指定
-          var username = 'ここは仕様書に書いてる通りやで'; // WebDAVのユーザー名
-          var password = 'ここも仕様書に書いてる通りやで'; // パスワード
+          var webDAVUrl = '➀' + newFileName; // WebDAVサーバーのアップロードURLを指定
+          var username = '➁'; // WebDAVのユーザー名➂
+          var password = '➂'; // パスワード
           
           var options = {
             method: 'put',
