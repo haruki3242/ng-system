@@ -1,5 +1,5 @@
-メールばら撒きソフト 汎用　のコードです
-↓ここからコードです
+/*メールばら撒きソフト 汎用　のコードです*/
+/*↓ここからコードです*/
 function pushSendButton() {
     /* スプレッドシートのシートを取得と準備 */
     var ss = SpreadsheetApp.getActiveSpreadsheet();     //このスプレッドシート
