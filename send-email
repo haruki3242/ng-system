@@ -1,1 +1,86 @@
+メールばら撒きソフト 汎用　のコードです
+↓ここからコードです
+function pushSendButton() {
+    /* スプレッドシートのシートを取得と準備 */
+    var ss = SpreadsheetApp.getActiveSpreadsheet();     //このスプレッドシート
+    var mainSheet = ss.getSheetByName("main");          //メインシート
+    var skSheet = ss.getSheetByName("sashikomi");       //差込シート
+    var skEndRow = skSheet.getDataRange().getLastRow(); //シートの使用範囲のうち最終行を取得
+    var count = skEndRow - 1;
+    // 送信確認
+    var select = Browser.msgBox("メールを一括送信します", count + "件のメールを送信しますが、よろしいですか？", Browser.Buttons.OK_CANCEL);
+    if (select == 'ok') {
+        sendEmail();
+    }
+    if (select == 'cancel') {
+        Browser.msgBox("送信をキャンセルしました");
+    }
+}
 
+function sendEmail() {
+    /* スプレッドシートのシートを取得と準備 */
+    var ss = SpreadsheetApp.getActiveSpreadsheet();          // このファイル
+    var mainSheet = ss.getSheetByName("main");               // メインシート
+    var skSheet = ss.getSheetByName("sashikomi");            // 差込シート
+    var skEndRow = skSheet.getDataRange().getLastRow();      // シートの使用範囲のうち最終行を取得
+    var attachedFileId = mainSheet.getRange(7, 2).getValue(); // 添付ファイルのID
+
+    /* メール基本データの設定 */
+    var strFrom = mainSheet.getRange(3, 2).getValue();        // fromメールアドレス
+    var strSender = mainSheet.getRange(4, 2).getValue();      // 差出人の名前
+    var strSubject = mainSheet.getRange(5, 2).getValue();     // メールタイトル
+    var strBody = mainSheet.getRange(6, 2).getValue();        // 本文
+    if (attachedFileId) {
+        var attachedFile = DriveApp.getFileById(attachedFileId); // 添付ファイル
+    }
+
+    var strSubjectIns = "";   // 差込後のメールタイトル
+    var strBodyIns = "";      // 差込後のメール本文
+
+    for (var i = 2; i <= skEndRow; i++) {
+        // 差込シートの取得
+        var strToEmail = skSheet.getRange(i, 1).getValue(); // 送信先メール
+        var strCc = skSheet.getRange(i, 2).getValue();      // CC
+        var strBcc = skSheet.getRange(i, 3).getValue();     // BCC
+        var sk1 = skSheet.getRange(i, 4).getValue();        // 差込①
+        var sk2 = skSheet.getRange(i, 5).getValue();        // 差込②
+        var sk3 = skSheet.getRange(i, 6).getValue();        // 差込③
+        var sk4 = skSheet.getRange(i, 7).getValue();        // 差込④
+        var sk5 = skSheet.getRange(i, 8).getValue();        // 差込⑤
+
+        // 差込を反映
+        strSubjectIns = strSubject.replace(/\$1/g, sk1).replace(/\$2/g, sk2).replace(/\$3/g, sk3).replace(/\$4/g, sk4).replace(/\$5/g, sk5); //タイトル
+        strBodyIns = strBody.replace(/\$1/g, sk1).replace(/\$2/g, sk2).replace(/\$3/g, sk3).replace(/\$4/g, sk4).replace(/\$5/g, sk5);       //本文
+
+        /* メール送信 */
+        if (attachedFileId) {
+            // 添付ファイル有りの場合
+            GmailApp.sendEmail(
+                strToEmail,    //toアドレス
+                strSubjectIns, //メールタイトル
+                strBodyIns,    //本文
+                {
+                    cc: strCc,                //ccアドレス
+                    bcc: strBcc,              //bccアドレス
+                    from: strFrom,            //fromアドレス
+                    name: strSender,          //差出人
+                    attachments: attachedFile //添付ファイル
+                }
+            );
+        } else {
+            // 添付ファイル無しの場合
+            GmailApp.sendEmail(
+                strToEmail,    //toアドレス
+                strSubjectIns, //メールタイトル
+                strBodyIns,    //本文
+                {
+                    cc: strCc,               //ccアドレス
+                    bcc: strBcc,             //bccアドレス
+                    from: strFrom,           //fromアドレス
+                    name: strSender,         //差出人
+                }
+            );
+        }
+    }
+    Browser.msgBox("送信が完了しました。");
+}
